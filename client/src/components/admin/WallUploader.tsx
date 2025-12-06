@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { uploadWallImage } from '../../api';
+import { uploadWallImage, getImageUrl } from '../../api';
 
 interface WallUploaderProps {
     wallName: string;
@@ -31,7 +31,7 @@ const WallUploader: React.FC<WallUploaderProps> = ({ wallName, currentImageUrl, 
             <h3>{label}</h3>
             {currentImageUrl ? (
                 <img
-                    src={`http://localhost:5000${currentImageUrl}`}
+                    src={getImageUrl(currentImageUrl)}
                     alt={label}
                     style={{ width: '100px', height: '100px', objectFit: 'cover', display: 'block', marginBottom: '10px' }}
                 />

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { uploadLeftTile, updateGridConfig } from '../../api';
+import { uploadLeftTile, updateGridConfig, getImageUrl } from '../../api';
 import type { ShopConfig } from '../../types';
 
 interface LeftWallGridProps {
@@ -71,7 +71,7 @@ const LeftWallGrid: React.FC<LeftWallGridProps> = ({ config, onConfigUpdate }) =
                                         <div style={{ fontSize: '10px', marginBottom: '5px' }}>R{r}:C{c}</div>
                                         {tile ? (
                                             <img
-                                                src={`http://localhost:5000${tile.imageUrl}`}
+                                                src={getImageUrl(tile.imageUrl)}
                                                 alt={`R${r}C${c}`}
                                                 style={{ width: '100%', height: '50px', objectFit: 'cover' }}
                                             />

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type { ShopConfig } from './types';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 export const getShopConfig = async (): Promise<ShopConfig> => {
     const response = await axios.get(`${API_URL}/shop-config`);
@@ -53,4 +53,11 @@ export const uploadLeftTile = async (row: number, col: number, file: File): Prom
         }
     });
     return response.data;
+};
+
+export const getImageUrl = (path: string) => {
+    if (!path) return '';
+    if (path.startsWith('http')) return path;
+    const baseUrl = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace('/api', '') : 'http://localhost:5000';
+    return `${baseUrl}${path}`;
 };

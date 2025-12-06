@@ -3,6 +3,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 import type { ShopConfig } from '../types';
+import { getImageUrl } from '../api';
 import DualJoysticks from './DualJoysticks';
 
 interface ThreeShopSceneProps {
@@ -70,7 +71,7 @@ const ShopFacade = ({ config }: { config: ShopConfig }) => {
     const rightPanelWidth = halfShopWidth - halfDoorWidth;
     const rightPanelX = halfDoorWidth + (rightPanelWidth / 2);
 
-    const imageUrl = config.walls.front.imageUrl ? `http://localhost:5000${config.walls.front.imageUrl}` : null;
+    const imageUrl = config.walls.front.imageUrl ? getImageUrl(config.walls.front.imageUrl) : null;
 
     return (
         <group>
@@ -117,7 +118,7 @@ const ShopInterior = ({ config }: { config: ShopConfig }) => {
                         position={[0, 0, 0.01]}
                         rotation={[0, 0, 0]}
                         args={[SHOP_WIDTH, SHOP_DEPTH]}
-                        imageUrl={`http://localhost:5000${walls.floor.imageUrl}`}
+                        imageUrl={getImageUrl(walls.floor.imageUrl)}
                     />
                 )}
             </mesh>
@@ -131,7 +132,7 @@ const ShopInterior = ({ config }: { config: ShopConfig }) => {
                         position={[0, 0, -0.01]}
                         rotation={[0, 0, 0]}
                         args={[SHOP_WIDTH, SHOP_DEPTH]}
-                        imageUrl={`http://localhost:5000${walls.ceiling.imageUrl}`}
+                        imageUrl={getImageUrl(walls.ceiling.imageUrl)}
                     />
                 )}
             </mesh>
@@ -142,7 +143,7 @@ const ShopInterior = ({ config }: { config: ShopConfig }) => {
                     position={[0, SHOP_HEIGHT / 2, -SHOP_DEPTH]}
                     rotation={[0, 0, 0]}
                     args={[SHOP_WIDTH, SHOP_HEIGHT]}
-                    imageUrl={`http://localhost:5000${walls.back.imageUrl}`}
+                    imageUrl={getImageUrl(walls.back.imageUrl)}
                 />
             ) : (
                 <mesh position={[0, SHOP_HEIGHT / 2, -SHOP_DEPTH]}>
@@ -157,7 +158,7 @@ const ShopInterior = ({ config }: { config: ShopConfig }) => {
                     position={[SHOP_WIDTH / 2, SHOP_HEIGHT / 2, -SHOP_DEPTH / 2]}
                     rotation={[0, -Math.PI / 2, 0]}
                     args={[SHOP_DEPTH, SHOP_HEIGHT]}
-                    imageUrl={`http://localhost:5000${walls.right.imageUrl}`}
+                    imageUrl={getImageUrl(walls.right.imageUrl)}
                 />
             ) : (
                 <mesh position={[SHOP_WIDTH / 2, SHOP_HEIGHT / 2, -SHOP_DEPTH / 2]} rotation={[0, -Math.PI / 2, 0]}>
@@ -171,7 +172,7 @@ const ShopInterior = ({ config }: { config: ShopConfig }) => {
                 {Array.from({ length: rows }).map((_, r) =>
                     Array.from({ length: cols }).map((_, c) => {
                         const tile = leftWallTiles.find((t) => t.row === r && t.col === c);
-                        const imageUrl = tile?.imageUrl ? `http://localhost:5000${tile.imageUrl}` : null;
+                        const imageUrl = tile?.imageUrl ? getImageUrl(tile.imageUrl) : null;
 
                         // Z calculation: 
                         // We want the wall to go from Z=0 to Z=-SHOP_DEPTH
