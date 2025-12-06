@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import ShopView from './pages/ShopView';
 import AdminPanel from './pages/AdminPanel';

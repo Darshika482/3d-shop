@@ -311,7 +311,7 @@ const PlayerControls = ({ movementRef }: { movementRef: React.MutableRefObject<{
         };
     }, [movementRef, camera, gl]);
 
-    useFrame((state, delta) => {
+    useFrame((_, delta) => {
         const speed = 3.0 * delta;
         const lookSpeed = 2.0 * delta;
 
