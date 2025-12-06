@@ -3,9 +3,35 @@ import type { ShopConfig } from './types';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
+const DEFAULT_CONFIG: ShopConfig = {
+    shopName: 'Demo Shop',
+    dimensions: { width: 8, height: 2.6, depth: 8 },
+    walls: {
+        front: { imageUrl: '' },
+        back: { imageUrl: '' },
+        right: { imageUrl: '' },
+        floor: { color: '#e5e5e5', imageUrl: '' },
+        ceiling: { color: '#f8f8f8', imageUrl: '' }
+    },
+    leftWallTiles: [],
+    gridDimensions: { rows: 2, cols: 5 },
+    info: {
+        address: '123 Demo St, Virtual City',
+        openingHours: '9:00 AM - 9:00 PM',
+        contactNumber: '+1 234 567 8900',
+        whatsappNumber: '+1 234 567 8900',
+        description: 'A demo 3D shop experience.'
+    }
+};
+
 export const getShopConfig = async (): Promise<ShopConfig> => {
-    const response = await axios.get(`${API_URL}/shop-config`);
-    return response.data;
+    try {
+        const response = await axios.get(`${API_URL}/shop-config`);
+        return response.data;
+    } catch (error) {
+        console.warn('Failed to fetch shop config, using default mock data.', error);
+        return DEFAULT_CONFIG;
+    }
 };
 
 export const getAdminShopConfig = async (): Promise<ShopConfig> => {
