@@ -209,9 +209,23 @@ const ShopCounter = () => {
     );
 };
 
+const SkySphere = () => {
+    const texture = useTexture('/Day_Sunless.png') as THREE.Texture;
+    texture.mapping = THREE.EquirectangularReflectionMapping;
+
+    return (
+        <mesh scale={[-1, 1, 1]}>
+            <sphereGeometry args={[50, 64, 64]} />
+            <meshBasicMaterial map={texture} side={THREE.BackSide} />
+        </mesh>
+    );
+};
+
 const StreetEnvironment = () => {
     return (
         <group>
+            {/* Sky */}
+            <SkySphere />
             {/* Street Ground */}
             <mesh position={[0, 0, 5]} rotation={[-Math.PI / 2, 0, 0]}>
                 <planeGeometry args={[20, 10]} />
@@ -226,12 +240,47 @@ const StreetEnvironment = () => {
     );
 };
 
+// --- Device Detection ---
+const isMobileOrTablet = (): boolean => {
+    // Check screen width (tablets typically < 1024px, phones < 768px)
+    const isSmallScreen = window.innerWidth <= 1024;
+    // Check for touch capability
+    const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    // Check user agent for mobile/tablet keywords
+    const mobileUserAgent = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Tablet/i.test(navigator.userAgent);
+
+    return isSmallScreen || (hasTouch && mobileUserAgent);
+};
+
+// --- Movement Bounds Configuration ---
+const MOBILE_BOUNDS = {
+    // Inside shop bounds (z < 0)
+    minX: -SHOP_WIDTH / 2 + 0.5,
+    maxX: SHOP_WIDTH / 2 - 0.5,
+    minZ: -SHOP_DEPTH + 0.5,
+    maxZ: 2.5, // Can only go slightly past door onto sidewalk
+};
+
+const DESKTOP_BOUNDS = {
+    // More freedom for desktop users
+    minX: -10,
+    maxX: 10,
+    minZ: -SHOP_DEPTH + 0.5,
+    maxZ: 10, // Can explore street area
+};
+
 // --- Controls ---
 
-const PlayerControls = ({ movementRef }: { movementRef: React.MutableRefObject<{ moveX: number, moveZ: number, lookX: number, lookY: number }> }) => {
+const PlayerControls = ({ movementRef, isMobile }: {
+    movementRef: React.MutableRefObject<{ moveX: number, moveZ: number, lookX: number, lookY: number }>,
+    isMobile: boolean
+}) => {
     const { camera, gl } = useThree();
     const isDragging = useRef(false);
     const previousMousePosition = useRef({ x: 0, y: 0 });
+
+    // Select bounds based on device type
+    const bounds = isMobile ? MOBILE_BOUNDS : DESKTOP_BOUNDS;
 
     useEffect(() => {
         camera.rotation.order = 'YXZ';
@@ -354,11 +403,28 @@ const PlayerControls = ({ movementRef }: { movementRef: React.MutableRefObject<{
         // Constrain height
         camera.position.y = 1.6;
 
-        // Bounds
+        // --- Apply Movement Bounds ---
+        // For mobile/tablet: Strict bounds to keep user in shop area
+        // For desktop: More relaxed bounds with full shop interior constraints
+
+        // Always apply lateral bounds when inside the shop
         if (camera.position.z < 0) {
+            // Inside shop - constrain to shop walls
             if (camera.position.x < -SHOP_WIDTH / 2 + 0.5) camera.position.x = -SHOP_WIDTH / 2 + 0.5;
             if (camera.position.x > SHOP_WIDTH / 2 - 0.5) camera.position.x = SHOP_WIDTH / 2 - 0.5;
-            if (camera.position.z < -SHOP_DEPTH + 0.5) camera.position.z = -SHOP_DEPTH + 0.5;
+            if (camera.position.z < bounds.minZ) camera.position.z = bounds.minZ;
+        } else {
+            // Outside shop - apply device-specific bounds
+            if (camera.position.x < bounds.minX) camera.position.x = bounds.minX;
+            if (camera.position.x > bounds.maxX) camera.position.x = bounds.maxX;
+            if (camera.position.z > bounds.maxZ) camera.position.z = bounds.maxZ;
+
+            // For mobile: Also constrain to doorway area when outside
+            if (isMobile) {
+                // Can only be in front of the door area when outside
+                if (camera.position.x < -DOOR_WIDTH) camera.position.x = -DOOR_WIDTH;
+                if (camera.position.x > DOOR_WIDTH) camera.position.x = DOOR_WIDTH;
+            }
         }
     });
 
